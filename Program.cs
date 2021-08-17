@@ -5,13 +5,15 @@ using KafkaConsumer.Models;
 
 namespace KafkaConsumer
 {
+    // Profit Loss Service
     class Program
     {
+        static float revenue = 0;
         static void Main()
         {
             var conf = new ConsumerConfig
             {
-                GroupId = "test-consumer-group",
+                GroupId = "test-consumer-group-revenue",
                 BootstrapServers = "localhost:9092",
                 AutoOffsetReset = AutoOffsetReset.Earliest
             };
@@ -36,11 +38,10 @@ namespace KafkaConsumer
                     // Consume a message from the test topic. Pass in a cancellation token so we can break out of our loop when Ctrl+C is pressed
                     var cr = c.Consume(cts.Token);
                     var obj = deserializer.Deserialize(cr.Message.Value, false, new SerializationContext());
+                    revenue += obj.Price;
 
-                    Console.WriteLine($"Consumed message '{cr.Message.Value}' from topic {cr.Topic}, partition {cr.Partition}, offset {cr.Offset}");
-                    Console.WriteLine($"Object was {obj.ToString()} ");
-
-                    // Do something interesting with the message you consumed
+                    //Console.WriteLine($"Consumed message '{cr.Message.Value}' from topic {cr.Topic}, partition {cr.Partition}, offset {cr.Offset}");
+                    Console.WriteLine($"Current revenue {revenue} as of  {obj.TimeStamp}");
                 }
             }
             catch (OperationCanceledException)
